@@ -11,10 +11,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Func;
 import java.util.Base64;
 
-
 @TeleOp(name = "TeleOp")
 public class teleopfr extends LinearOpMode {
-
     @Override
     public void runOpMode() throws InterruptedException {
         //Drive Motors
@@ -26,7 +24,7 @@ public class teleopfr extends LinearOpMode {
         motorFrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         motorBackRight.setDirection(DcMotorSimple.Direction.FORWARD);
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
 
         motorBackRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         motorFrontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -50,11 +48,11 @@ public class teleopfr extends LinearOpMode {
 
         while (opModeIsActive()) {
             // gamepad controls
-            double y = -gamepad2.left_stick_y;
-            double x = gamepad2.left_stick_x * -1; // Invert the x-axis input
-            double rx = gamepad2.right_stick_x;
+            double y = -gamepad2.left_stick_y;  // Forward/backward movement
+            double x = gamepad2.left_stick_x;  // Left/right strafing
+            double rx = gamepad2.right_stick_x;  // Rotation
 
-            // Calculate motor power with corrected x input for strafing
+// Calculate motor powers with all movements combined
             double frontRightPower = y - x - rx;
             double frontLeftPower = y + x + rx;
             double backLeftPower = y - x + rx;
