@@ -21,6 +21,15 @@ public class teleopfr extends LinearOpMode {
         DcMotorEx motorFrontRight = hardwareMap.get(DcMotorEx.class, "RFMotor");
         DcMotorEx motorBackRight = hardwareMap.get(DcMotorEx.class, "RBMotor");
 
+        Servo intakeLeftServo = hardwareMap.get(Servo.class, "ILeft");
+        Servo intakeRightServo = hardwareMap.get(Servo.class, "IRight");
+
+        Servo intakeAngleLeftServo = hardwareMap.get(Servo.class, "ALeft");
+        Servo intakeAngleRightServo = hardwareMap.get(Servo.class, "ARight");
+
+        Servo scissorLeftServo = hardwareMap.get(Servo.class, "SLeft");
+        Servo scissorRightServo = hardwareMap.get(Servo.class, "SRight");
+
         motorFrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         motorBackRight.setDirection(DcMotorSimple.Direction.FORWARD);
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -35,11 +44,19 @@ public class teleopfr extends LinearOpMode {
         // Control Hub
         // - Port 0: LBMotor
         // - Port 1: LFMotor
+        // - Port 0: ILeft
+        // - Port 1: ALeft
+        // - Port 2: SLeft
 
         // Right
         // Expansion Hub
         // - Port 0: RBMotor
         // - Port 1: RFMotor
+        // - Port 0: IRight
+        // - Port 1: ARight
+        // - Port 2: SRight
+
+
 
         //speed adjust thing
         double speedAdjust = 1;
@@ -63,6 +80,39 @@ public class teleopfr extends LinearOpMode {
             motorBackRight.setPower(backRightPower * speedAdjust);
             motorFrontLeft.setPower(frontLeftPower * speedAdjust);
             motorFrontRight.setPower(frontRightPower * speedAdjust);
+
+            if (gamepad2.y) {
+                intakeAngleLeftServo.setPosition(-0.05);
+                intakeAngleRightServo.setPosition(-0.05);
+
+                scissorLeftServo.setPosition(1);
+                scissorRightServo.setPosition(1);
+            } else if (gamepad2.x) {
+                intakeAngleLeftServo.setPosition(0.25);
+                intakeAngleRightServo.setPosition(0.25);
+
+                scissorLeftServo.setPosition(-0.8);
+                scissorRightServo.setPosition(-0.8);
+            }
+
+            if (gamepad1.y) {
+                intakeLeftServo.setPosition(0);
+                intakeRightServo.setPosition(1);
+            } else if (gamepad1.x) {
+                intakeLeftServo.setPosition(1);
+                intakeRightServo.setPosition(0);
+            } else {
+                intakeLeftServo.setPosition(0.5); // Stop or neutral position for continuous servo
+                intakeRightServo.setPosition(0.5);
+            }
+
+            if (gamepad1.a) {
+                intakeAngleLeftServo.setPosition(-0.05);
+                intakeAngleRightServo.setPosition(-0.05);
+            } else if (gamepad1.b) {
+                intakeAngleLeftServo.setPosition(0.25);
+                intakeAngleRightServo.setPosition(0.25);
+            }
 
         }
 
