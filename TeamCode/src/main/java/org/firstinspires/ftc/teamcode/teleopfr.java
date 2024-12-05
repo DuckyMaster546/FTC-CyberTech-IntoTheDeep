@@ -90,6 +90,7 @@ public class teleopfr extends LinearOpMode {
             motorFrontLeft.setPower(frontLeftPower * speedAdjust);
             motorFrontRight.setPower(frontRightPower * speedAdjust);
 
+
             if (gamepad2.left_trigger > 0) {
                 intakeAngleLeftServo.setPosition(0.35);
                 intakeAngleRightServo.setPosition(0.35);
