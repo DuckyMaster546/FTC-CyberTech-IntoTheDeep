@@ -39,8 +39,6 @@ public class teleopfr extends LinearOpMode {
         Servo smallArmRotation = hardwareMap.get(Servo.class, "SARotation");
         Servo claw = hardwareMap.get(Servo.class, "CWRotation");
 
-//        ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
-
         motorFrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         motorBackRight.setDirection(DcMotorSimple.Direction.FORWARD);
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -114,7 +112,7 @@ public class teleopfr extends LinearOpMode {
             };
 
             // amogh's controller
-            if (gamepad1.y) {
+            if (gamepad1.y) { // moving intake angled up and down not working
 //                if (counter2 == 0) {
 //                    counter2 += 1;
 //                    intakeAngleLeftServo.setPosition(0.32);
@@ -145,38 +143,29 @@ public class teleopfr extends LinearOpMode {
                 intakeLeftServo.setPosition(0.5);
             };
 
-            if (gamepad1.x) { // regular score macro
-//                smallArmRotation.setPosition(1);
-//                bigArmRotationLeft.setPosition(1);
-//                bigArmRotationRight.setPosition(0.53); // default position final
-//                bigArmRotationRight.setPosition(0); // score macro position final + specimen final
-//                claw.setPosition(0); // close claw -> needs to be reversed final
-//                claw.setPosition(0.25); // open claw -> needs to be reversed final
-            };
-
             if (gamepad1.left_bumper) { // claw open and close
                 if (counter1 == 0) {
                     counter1 += 1;
-//                    claw.setPosition(0.5);
+                    claw.setPosition(0);
                 } else if (counter1 == 1) {
                     counter1 -= 0;
-//                    claw.setPosition(0.5);
+                    claw.setPosition(0.25);
                 };
+            };
+
+            if (gamepad1.x) { // regular score macro
+
             };
 
             if (gamepad1.right_bumper) { // specimen get macro
 
             }
 
-//            int red = colorSensor.red();
-//            int green = colorSensor.green();
-//            int blue = colorSensor.blue();
-//
-//            // Display RGB values on the Driver Station screen
-//            telemetry.addData("Red", red);
-//            telemetry.addData("Green", green);
-//            telemetry.addData("Blue", blue);
-//            telemetry.update();
+//              bigArmRotationRight.setPosition(0.53); // default position final
+//              bigArmRotationRight.setPosition(0); // score macro position final + specimen final
+//              claw.setPosition(0); // close claw -> needs to be reversed final
+//              claw.setPosition(0.25); // open claw -> needs to be reversed final
+
 
         }
 
