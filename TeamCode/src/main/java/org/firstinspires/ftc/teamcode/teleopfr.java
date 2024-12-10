@@ -16,7 +16,6 @@ import java.util.Base64;
 @TeleOp(name = "TeleOp")
 public class teleopfr extends LinearOpMode {
 
-
     @Override
     public void runOpMode() throws InterruptedException {
         //Drive Motors
@@ -34,12 +33,18 @@ public class teleopfr extends LinearOpMode {
         Servo scissorLeftServo = hardwareMap.get(Servo.class, "SLeft");
         Servo scissorRightServo = hardwareMap.get(Servo.class, "SRight");
 
-        ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
+        Servo bigArmRotationLeft = hardwareMap.get(Servo.class, "LBARotation");
+        Servo bigArmRotationRight = hardwareMap.get(Servo.class, "RBARotation");
+
+        Servo smallArmRotation = hardwareMap.get(Servo.class, "SARotation");
+        Servo claw = hardwareMap.get(Servo.class, "CWRotation");
+
+//        ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
 
         motorFrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         motorBackRight.setDirection(DcMotorSimple.Direction.FORWARD);
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         motorBackRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         motorFrontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -47,6 +52,7 @@ public class teleopfr extends LinearOpMode {
         motorBackLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         intakeAngleLeftServo.setDirection(Servo.Direction.REVERSE);
+        claw.setDirection(Servo.Direction.REVERSE);
 
         // Left
         // Control Hub
@@ -55,6 +61,9 @@ public class teleopfr extends LinearOpMode {
         // - Port 0: ILeft
         // - Port 1: ALeft
         // - Port 2: SLeft
+        // - Port 3: LBARotation
+        // - Port 4: SARotation
+        // - Port 5: CWRotation
 
         // Right
         // Expansion Hub
@@ -63,14 +72,15 @@ public class teleopfr extends LinearOpMode {
         // - Port 0: IRight
         // - Port 1: ARight
         // - Port 2: SRight
+        // - Port 3: RBARotation
 
         //speed adjust thing
         double speedAdjust = 1;
 
+        int counter1 = 0;
         int counter2 = 0;
 
         waitForStart();
-
 
         while (opModeIsActive()) {
             // gamepad controls
@@ -90,48 +100,83 @@ public class teleopfr extends LinearOpMode {
             motorFrontLeft.setPower(frontLeftPower * speedAdjust);
             motorFrontRight.setPower(frontRightPower * speedAdjust);
 
-
+            // yash's controller
             if (gamepad2.left_trigger > 0) {
-                intakeAngleLeftServo.setPosition(0.35);
-                intakeAngleRightServo.setPosition(0.35);
-
+//                intakeAngleLeftServo.setPosition(0.35);
+//                intakeAngleRightServo.setPosition(0.35);
                 scissorLeftServo.setPosition(-1);
                 scissorRightServo.setPosition(1);
             } else if (gamepad2.left_trigger == 0) {
-                intakeAngleLeftServo.setPosition(0.45);
-                intakeAngleRightServo.setPosition(0.45);
-
+//                intakeAngleLeftServo.setPosition(0.45);
+//                intakeAngleRightServo.setPosition(0.45);
                 scissorLeftServo.setPosition(1);
                 scissorRightServo.setPosition(-1);
-            }
-
-            if (gamepad2.left_bumper) {
-                if (counter2 == 0) {
-                    counter2 += 1;
-                    intakeLeftServo.setPosition(0);
-                    intakeRightServo.setPosition(1);
-                } else if (counter2 == 1) {
-                    counter2 += 1;
-                    intakeRightServo.setPosition(0);
-                    intakeLeftServo.setPosition(1);
-                } else if (counter2 == 2) {
-                    counter2 = 0;
-                    intakeRightServo.setPosition(0.5);
-                    intakeLeftServo.setPosition(0.5);
-                }
             };
 
+            // amogh's controller
+            if (gamepad1.y) {
+//                if (counter2 == 0) {
+//                    counter2 += 1;
+//                    intakeAngleLeftServo.setPosition(0.32);
+//                    intakeAngleRightServo.setPosition(0.32);
+//                } else if (counter2 == 1) {
+//                    counter2 -= 1;
+//                    intakeAngleLeftServo.setPosition(0.45);
+//                    intakeAngleRightServo.setPosition(0.45);
+//                };
 
+                intakeAngleLeftServo.setPosition(0.6);
 
-            int red = colorSensor.red();
-            int green = colorSensor.green();
-            int blue = colorSensor.blue();
+            };
 
-            // Display RGB values on the Driver Station screen
-            telemetry.addData("Red", red);
-            telemetry.addData("Green", green);
-            telemetry.addData("Blue", blue);
-            telemetry.update();
+            if (gamepad1.a) {
+                intakeLeftServo.setPosition(0);
+                intakeRightServo.setPosition(1);
+            } else {
+                intakeRightServo.setPosition(0.5);
+                intakeLeftServo.setPosition(0.5);
+            };
+
+            if (gamepad1.b) {
+                intakeRightServo.setPosition(0);
+                intakeLeftServo.setPosition(1);
+            } else {
+                intakeRightServo.setPosition(0.5);
+                intakeLeftServo.setPosition(0.5);
+            };
+
+            if (gamepad1.x) { // regular score macro
+//                smallArmRotation.setPosition(1);
+//                bigArmRotationLeft.setPosition(1);
+//                bigArmRotationRight.setPosition(0.53); // default position final
+//                bigArmRotationRight.setPosition(0); // score macro position final + specimen final
+//                claw.setPosition(0); // close claw -> needs to be reversed final
+//                claw.setPosition(0.25); // open claw -> needs to be reversed final
+            };
+
+            if (gamepad1.left_bumper) { // claw open and close
+                if (counter1 == 0) {
+                    counter1 += 1;
+//                    claw.setPosition(0.5);
+                } else if (counter1 == 1) {
+                    counter1 -= 0;
+//                    claw.setPosition(0.5);
+                };
+            };
+
+            if (gamepad1.right_bumper) { // specimen get macro
+
+            }
+
+//            int red = colorSensor.red();
+//            int green = colorSensor.green();
+//            int blue = colorSensor.blue();
+//
+//            // Display RGB values on the Driver Station screen
+//            telemetry.addData("Red", red);
+//            telemetry.addData("Green", green);
+//            telemetry.addData("Blue", blue);
+//            telemetry.update();
 
         }
 
