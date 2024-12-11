@@ -24,6 +24,9 @@ public class teleopfr extends LinearOpMode {
         DcMotorEx motorFrontRight = hardwareMap.get(DcMotorEx.class, "RFMotor");
         DcMotorEx motorBackRight = hardwareMap.get(DcMotorEx.class, "RBMotor");
 
+        DcMotorEx motorLeftLinear = hardwareMap.get(DcMotorEx.class, "LLinear");
+        DcMotorEx motorRightLinear = hardwareMap.get(DcMotorEx.class, "RLinear");
+
         Servo intakeLeftServo = hardwareMap.get(Servo.class, "ILeft");
         Servo intakeRightServo = hardwareMap.get(Servo.class, "IRight");
 
@@ -44,10 +47,16 @@ public class teleopfr extends LinearOpMode {
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        motorRightLinear.setDirection(DcMotorSimple.Direction.REVERSE); 
+        motorLeftLinear.setDirection(DcMotorSimple.Direction.FORWARD); 
+
         motorBackRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         motorFrontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         motorFrontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         motorBackLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        motorRightLinear.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        motorLeftLinear.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         intakeAngleLeftServo.setDirection(Servo.Direction.REVERSE);
         claw.setDirection(Servo.Direction.REVERSE);
@@ -56,6 +65,7 @@ public class teleopfr extends LinearOpMode {
         // Control Hub
         // - Port 0: LBMotor
         // - Port 1: LFMotor
+        // - Port 2: LLinear
         // - Port 0: ILeft
         // - Port 1: ALeft
         // - Port 2: SLeft
@@ -67,6 +77,7 @@ public class teleopfr extends LinearOpMode {
         // Expansion Hub
         // - Port 0: RBMotor
         // - Port 1: RFMotor
+        // - Port 2: RLinear
         // - Port 0: IRight
         // - Port 1: ARight
         // - Port 2: SRight
@@ -78,6 +89,12 @@ public class teleopfr extends LinearOpMode {
         int counter1 = 0;
         int counter2 = 0;
 
+        int initialRightPos = motorRightLinear.getCurrentPosition();
+        int initialLeftPos = motorLeftLinear.getCurrentPosition();
+
+        int curRightPos = motorRightLinear.getCurrentPosition();
+        int curLeftPos = motorLeftLinear.getCurrentPosition();
+
         waitForStart();
 
         while (opModeIsActive()) {
@@ -86,7 +103,7 @@ public class teleopfr extends LinearOpMode {
             double x = gamepad2.left_stick_x;  // Left/right strafing
             double rx = gamepad2.right_stick_x;  // Rotation
 
-// Calculate motor powers with all movements combined
+            // Calculate motor powers with all movements combined
             double frontRightPower = y - x - rx;
             double frontLeftPower = y + x + rx;
             double backLeftPower = y - x + rx;
@@ -100,19 +117,15 @@ public class teleopfr extends LinearOpMode {
 
             // yash's controller
             if (gamepad2.left_trigger > 0) {
-//                intakeAngleLeftServo.setPosition(0.35);
-//                intakeAngleRightServo.setPosition(0.35);
                 scissorLeftServo.setPosition(-1);
                 scissorRightServo.setPosition(1);
             } else if (gamepad2.left_trigger == 0) {
-//                intakeAngleLeftServo.setPosition(0.45);
-//                intakeAngleRightServo.setPosition(0.45);
-                scissorLeftServo.setPosition(1);
-                scissorRightServo.setPosition(-1);
+//                scissorLeftServo.setPosition(1);
+//                scissorRightServo.setPosition(-1);
             };
 
             // amogh's controller
-            if (gamepad1.y) { // moving intake angled up and down not working
+            if (gamepad1.y) { //------------------------------------------------------------------------------------------------------------
 //                if (counter2 == 0) {
 //                    counter2 += 1;
 //                    intakeAngleLeftServo.setPosition(0.32);
@@ -122,9 +135,7 @@ public class teleopfr extends LinearOpMode {
 //                    intakeAngleLeftServo.setPosition(0.45);
 //                    intakeAngleRightServo.setPosition(0.45);
 //                };
-
-                intakeAngleLeftServo.setPosition(0.6);
-
+                intakeAngleLeftServo.setPosition(1);
             };
 
             if (gamepad1.a) {
@@ -146,29 +157,97 @@ public class teleopfr extends LinearOpMode {
             if (gamepad1.left_bumper) { // claw open and close
                 if (counter1 == 0) {
                     counter1 += 1;
-                    claw.setPosition(0);
+                    claw.setPosition(0.1);
                 } else if (counter1 == 1) {
-                    counter1 -= 0;
-                    claw.setPosition(0.25);
+                    counter1 -= 1;
+                    claw.setPosition(0.35);
                 };
             };
 
-            if (gamepad1.x) { // regular score macro
+//            if (gamepad1.x) { // regular default position
+//                smallArmRotation.setPosition(0.55); // default position final
+//                bigArmRotationRight.setPosition(0.53); // default position final
+//                claw.setPosition(0.35);
+//            };
 
-            };
-
-            if (gamepad1.right_bumper) { // specimen get macro
-
+            if (gamepad1.right_bumper) { // specimen/score get macro
+                smallArmRotation.setPosition(0.4); // score/specimen position final
+                bigArmRotationRight.setPosition(0); // default position final
             }
 
+            if (gamepad1.left_trigger > 0) {
+                motorLeftLinear.setPower(gamepad1.left_trigger);
+                motorRightLinear.setPower(gamepad1.left_trigger);
+                curRightPos = motorRightLinear.getCurrentPosition();
+                curLeftPos = motorLeftLinear.getCurrentPosition();
+            } else if (gamepad1.left_trigger == 0) {
+                motorLeftLinear.setPower(0);
+                motorRightLinear.setPower(0);
+                curRightPos = motorRightLinear.getCurrentPosition();
+                curLeftPos = motorLeftLinear.getCurrentPosition();
+            }
+
+            if (gamepad1.right_trigger > 0) {
+                motorLeftLinear.setPower(-gamepad1.right_trigger);
+                motorRightLinear.setPower(-gamepad1.right_trigger);
+                curRightPos = motorRightLinear.getCurrentPosition();
+                curLeftPos = motorLeftLinear.getCurrentPosition();
+            } else if (gamepad1.right_trigger == 0) {
+                motorLeftLinear.setPower(0);
+                motorRightLinear.setPower(0);
+                curRightPos = motorRightLinear.getCurrentPosition();
+                curLeftPos = motorLeftLinear.getCurrentPosition();
+            };
+
+            if (gamepad1.x) { //------------------------------------------------------------------------------------------------------------
+                // Define a tolerance range for the motor position
+                int tolerance = 100; // Adjust this value based on your setup
+
+                // Set servos in position
+                smallArmRotation.setPosition(0.55); // default position final
+                bigArmRotationRight.setPosition(0.53); // default position final
+                claw.setPosition(0.35);
+                sleep(500);
+
+                // Move the linear motors back to their initial positions
+                while (true) { // Loop indefinitely
+                    // Determine direction for each motor
+                    double rightPower = (motorRightLinear.getCurrentPosition() < initialRightPos) ? -0.5 : 0.5;
+                    double leftPower = (motorLeftLinear.getCurrentPosition() < initialLeftPos) ? -0.5 : 0.5;
+
+                    // Check if motors are within the tolerance range of initial positions
+                    boolean rightInPosition = Math.abs(motorRightLinear.getCurrentPosition() - initialRightPos) <= tolerance;
+                    boolean leftInPosition = Math.abs(motorLeftLinear.getCurrentPosition() - initialLeftPos) <= tolerance;
+
+                    // Stop motors if they are in position
+                    if (rightInPosition) {
+                        rightPower = 0;
+                    }
+                    if (leftInPosition) {
+                        leftPower = 0;
+                    }
+
+                    // Set power to motors
+                    motorRightLinear.setPower(rightPower);
+                    motorLeftLinear.setPower(leftPower);
+
+                    // Break the loop if both motors are in position
+                    if (rightInPosition && leftInPosition) {
+                        break;
+                    }
+                }
+
+                // Stop motors after breaking out of the loop
+                motorRightLinear.setPower(0);
+                motorLeftLinear.setPower(0);
+            }
+//              smallArmRotation.setPosition(0.55) // default position final
+//              smallArmRotation.setPosition(0.4) // score/specimen position final
 //              bigArmRotationRight.setPosition(0.53); // default position final
 //              bigArmRotationRight.setPosition(0); // score macro position final + specimen final
-//              claw.setPosition(0); // close claw -> needs to be reversed final
-//              claw.setPosition(0.25); // open claw -> needs to be reversed final
-
-
+//              claw.setPosition(0.1); // close claw -> needs to be reversed final
+//              claw.setPosition(0.35); // open claw -> needs to be reversed final
         }
-
     }
 }
 //}
