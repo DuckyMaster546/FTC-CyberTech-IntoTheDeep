@@ -129,7 +129,7 @@ public class Teleop extends LinearOpMode {
             }
 
             // amogh's controller
-            if (gamepad1.y) { //------------------------------------------------------------------------------------------------------------
+            if (gamepad1.y) { //---- ------------------------------------------------------------------------------------------------------
                 if (counter2 == 0) {
                     counter2 += 1;
                     intakeAngleRightServo.setPosition(0.68); // intake position
