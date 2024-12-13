@@ -144,18 +144,13 @@ public class Teleop extends LinearOpMode {
             if (gamepad1.a) { // intake
                 intakeRightServo.setPower(1);
                 intakeLeftServo.setPower(-1);
-            } else {
-                intakeRightServo.setPower(0.0);
-                intakeLeftServo.setPower(0.0);
-            };
-
-            if (gamepad1.b) { // outake
+            } else if (gamepad1.b) {
                 intakeRightServo.setPower(-1);
                 intakeLeftServo.setPower(1);
             } else {
                 intakeRightServo.setPower(0.0);
                 intakeLeftServo.setPower(0.0);
-            };
+            }
 
             if (gamepad1.left_bumper) { // claw open and close
                 if (counter1 == 0) {
