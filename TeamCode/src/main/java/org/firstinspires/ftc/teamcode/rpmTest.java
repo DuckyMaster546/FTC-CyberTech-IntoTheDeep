@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @TeleOp(name = "rpm")
-public class teleop extends LinearOpMode {
+public class rpmTest extends LinearOpMode {
     // Declare motor and RPM calculation variables
     private DcMotor motor;
     private long lastTime;
