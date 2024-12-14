@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@TeleOp(name = "rpm")
+@TeleOp(name = "rpmTest")
 public class rpmTest extends LinearOpMode {
     // Declare motor and RPM calculation variables
     private DcMotor motor;

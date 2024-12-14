@@ -25,7 +25,7 @@ public class Autonomous extends LinearOpMode {
         frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        double wheelDiameter = 3.77; // inches
+        double wheelDiameter = 3.78; // inches
         double wheelCircumference = wheelDiameter * Math.PI;
         double rotation = inches/wheelCircumference;
         double ticksPerRevolution = 537.7;
@@ -59,14 +59,19 @@ public class Autonomous extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        this.backLeftMotor = hardwareMap.get(DcMotor.class, "backLeftMotor");
-        this.backRightMotor = hardwareMap.get(DcMotor.class, "backRightMotor");
-        this.frontLeftMotor = hardwareMap.get(DcMotor.class, "frontLeftMotor");
-        this.frontRightMotor = hardwareMap.get(DcMotor.class, "frontRightMotor");
+        this.backLeftMotor = hardwareMap.get(DcMotor.class, "LBMotor");
+        this.backRightMotor = hardwareMap.get(DcMotor.class, "RBMotor");
+        this.frontLeftMotor = hardwareMap.get(DcMotor.class, "LFMotor");
+        this.frontRightMotor = hardwareMap.get(DcMotor.class, "RFMotor");
+
+        this.frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        this.backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        this.frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         waitForStart();
         while (opModeIsActive()) {
-            forwardForDistance(22);
+            forwardForDistance(10); //----------------------------------------------------------------------------------------------------------
         }
     }
 }
