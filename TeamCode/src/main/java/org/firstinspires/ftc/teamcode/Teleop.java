@@ -53,6 +53,7 @@ public class Teleop extends LinearOpMode {
         bigArmRotationRight.setDirection(Servo.Direction.REVERSE);
         intakeRotationLeft.setDirection(Servo.Direction.REVERSE);
         intakeWrist.setDirection(Servo.Direction.REVERSE);
+        scissorLeftServo.setDirection(Servo.Direction.REVERSE);
 
         double speedAdjust = 1;
 
@@ -90,6 +91,29 @@ public class Teleop extends LinearOpMode {
         boolean sequenceActiveTS = false;  // To track if the sequence is running
         long actionStartTimeTS = 0;
         int stepTS = 0;
+
+        boolean sequenceActiveClawtoInit = false;  // To track if the sequence is running
+        long actionStartTimeClawtoInit = 0;
+        int stepClawtoInit = 0;
+
+        boolean previousButtonStateOutakeClaw = false;
+        int counter1 = 0;
+
+        // init big arm
+        bigArmRotationLeft.setPosition(0.34);
+        bigArmRotationRight.setPosition(0.34);
+        smallArmRotation.setPosition(0.56);
+        outakeClaw.setPosition(0);
+
+        // init intake
+//        intakeClaw.setPosition(0);
+//        intakeWrist.setPosition(0.07);
+//        intakeRotationRight.setPosition(0);
+//        intakeRotationLeft.setPosition(0);
+
+        intakeRotationLeft.setPosition(0.2);
+        intakeRotationRight.setPosition(0.2);
+        intakeWrist.setPosition(0);
 
         waitForStart();
         while (opModeIsActive()) {
@@ -133,20 +157,64 @@ public class Teleop extends LinearOpMode {
                 curLeftPos = motorLeftLinear.getCurrentPosition();
             };
 
+            // zero everything
+            if (gamepad2.b) {
+                scissorLeftServo.setPosition(0);
+                scissorRightServo.setPosition(0);
+            };
+
+            if (gamepad1.right_bumper && !sequenceActiveClawtoInit) {
+                // Start the sequence
+                sequenceActiveClawtoInit = true;
+                actionStartTimeClawtoInit = System.currentTimeMillis();
+                stepClawtoInit = 0;  // Start from step 0
+            };
+
+            if (sequenceActiveClawtoInit) {
+                switch (stepClawtoInit) {
+                    case 0:
+                        // Open Outake Claw
+                        outakeClaw.setPosition(0);
+                        if (System.currentTimeMillis() - actionStartTimeClawtoInit >= 300) {
+                            actionStartTimeClawtoInit = System.currentTimeMillis();
+                            stepClawtoInit++;  // Move to next step
+                        }
+                        break;
+                    case 1:
+                        // Init Position
+                        bigArmRotationLeft.setPosition(0.34);
+                        bigArmRotationRight.setPosition(0.34);
+                        smallArmRotation.setPosition(0.56);
+                        outakeClaw.setPosition(0);
+                        if (System.currentTimeMillis() - actionStartTimeClawtoInit >= 100) {
+                            sequenceActiveClawtoInit = false;  // End the sequence
+                        }
+                        break;
+                }
+            }
+
             // A Button Macro -> Grab to Prescore
-            if (gamepad1.a && !sequenceActiveGP) {
+            if (gamepad2.x && !sequenceActiveGP) {
                 // Start the sequence
                 sequenceActiveGP = true;
                 actionStartTimeGP = System.currentTimeMillis();
                 stepGP = 0;  // Start from step 0
-            }
+            };
 
             if (sequenceActiveGP) {
                 switch (stepGP) {
                     case 0:
+                        // Open Intake Claw
+                        intakeClaw.setPosition(0);
+                        if (System.currentTimeMillis() - actionStartTimeGP >= 100) {
+                            actionStartTimeGP = System.currentTimeMillis();
+                            stepGP++;  // Move to next step
+                        }
+                        break;
+                    case 1:
                         // Reset positions
                         intakeClaw.setPosition(0);
-                        intakeWrist.setPosition(0);
+                        intakeWrist.setPosition(0.07);
                         intakeRotationRight.setPosition(0);
                         intakeRotationLeft.setPosition(0);
                         if (System.currentTimeMillis() - actionStartTimeGP >= 300) {
@@ -154,7 +222,7 @@ public class Teleop extends LinearOpMode {
                             stepGP++;  // Move to next step
                         }
                         break;
-                    case 1:
+                    case 2:
                         // Close claw
                         intakeClaw.setPosition(0.33);
                         if (System.currentTimeMillis() - actionStartTimeGP >= 300) {
@@ -162,11 +230,11 @@ public class Teleop extends LinearOpMode {
                             stepGP++;
                         }
                         break;
-                    case 2:
+                    case 3:
                         // Prescore position
-                        intakeRotationLeft.setPosition(0.4);
-                        intakeRotationRight.setPosition(0.4);
-                        intakeWrist.setPosition(0.16);
+                        intakeRotationLeft.setPosition(0.2);
+                        intakeRotationRight.setPosition(0.2);
+                        intakeWrist.setPosition(0);
                         if (System.currentTimeMillis() - actionStartTimeGP >= 100) {
                             sequenceActiveGP = false;  // End the sequence
                         }
@@ -174,26 +242,18 @@ public class Teleop extends LinearOpMode {
                 }
             }
 
-            // B Button Macro -> Prescore
-            if (gamepad1.b) {
-                // intake slides out missing
-                intakeWrist.setPosition(0.16);
-                intakeRotationLeft.setPosition(0.4);
-                intakeRotationRight.setPosition(0.4);
+            // B Button Macro -> PreScore // RIGHT TRIGGER
+            if (gamepad2.right_bumper) {
+                scissorLeftServo.setPosition(0.28);
+                scissorRightServo.setPosition(0.28);
+                intakeWrist.setPosition(0);
+                intakeRotationLeft.setPosition(0.2);
+                intakeRotationRight.setPosition(0.2);
             };
 
-            if (gamepad1.y) {
-                bigArmRotationLeft.setPosition(0.34);
-                bigArmRotationRight.setPosition(0.34);
-                smallArmRotation.setPosition(0.56);
-                outakeClaw.setPosition(0);
-//                intakeRotationLeft.setPosition(0.62);
-//                intakeRotationRight.setPosition(0.62);
-//                intakeWrist.setPosition(0.42);
-            }
 
-            // X Button Macro -> Transfer to Score
-            if (gamepad1.x && !sequenceActiveTS) {
+            // Left Bumper Button Macro -> Transfer to Score
+            if (gamepad2.left_bumper && !sequenceActiveTS) {
                 // Start the sequence
                 sequenceActiveTS = true;
                 actionStartTimeTS = System.currentTimeMillis();
@@ -204,15 +264,27 @@ public class Teleop extends LinearOpMode {
                 switch (stepTS) {
                     case 0:
                         // Intake Transfer Position + Slides In
-                        intakeRotationLeft.setPosition(0.62);
-                        intakeRotationRight.setPosition(0.62);
-                        intakeWrist.setPosition(0.42);
-                        if (System.currentTimeMillis() - actionStartTimeTS >= 400) {
+                        scissorRightServo.setPosition(0);
+                        scissorLeftServo.setPosition(0);
+
+                        intakeRotationLeft.setPosition(0.2);
+                        intakeRotationRight.setPosition(0.2);
+                        intakeWrist.setPosition(0.16);
+                        if (System.currentTimeMillis() - actionStartTimeTS >= 600) {
                             actionStartTimeTS = System.currentTimeMillis();
                             stepTS++;  // Move to next step
                         }
                         break;
                     case 1:
+                        intakeRotationLeft.setPosition(0.37);
+                        intakeRotationRight.setPosition(0.37);
+                        intakeWrist.setPosition(0.42);
+                        if (System.currentTimeMillis() - actionStartTimeTS >= 600) {
+                            actionStartTimeTS = System.currentTimeMillis();
+                            stepTS++;  // Move to next step
+                        }
+                        break;
+                    case 2:
                         // Close Outtake Claw
                         bigArmRotationLeft.setPosition(0.37);
                         bigArmRotationRight.setPosition(0.37);
@@ -223,27 +295,28 @@ public class Teleop extends LinearOpMode {
                             stepTS++;
                         }
                         break;
-                    case 2:
+                    case 3:
                         // Open Intake Claw
                         intakeClaw.setPosition(0);
+                        intakeRotationLeft.setPosition(0.2);
+                        intakeRotationRight.setPosition(0.2);
+                        intakeWrist.setPosition(0);
                         if (System.currentTimeMillis() - actionStartTimeTS >= 200) {
                             actionStartTimeTS = System.currentTimeMillis();
                             stepTS++;  // Move to next step
                         }
                         break;
-                    case 3:
+                    case 4:
                         // Score
-                        bigArmRotationLeft.setPosition(0);
-                        bigArmRotationRight.setPosition(0);
+                        bigArmRotationLeft.setPosition(0.06);
+                        bigArmRotationRight.setPosition(0.06);
                         smallArmRotation.setPosition(0);
                         if (System.currentTimeMillis() - actionStartTimeTS >= 100) {
                             sequenceActiveTS = false;  // End the sequence
                         }
                         break;
-                }
-            }
-
-
+                };
+            };
 
             // intakerotationright -> down is 0 (safe), up is 1
             // intakerotationleft -> down is 0 (safe), up is 1, it required a reverse direction
@@ -253,6 +326,8 @@ public class Teleop extends LinearOpMode {
             // bigArmRotationLeft -> up is 0(safe), down is 1
             // outakeClaw -> open is 0 (safe), closed is 0.33 (safe)
             // smallArmRotation -> out is 0 (score, safe), inside to transition is 1
+            // scissorRightServo -> in is 0 (safe), outside is 1
+            // scissorLeftServo -> in is 0 (safe), outside is 1, required a reverse direction
         }
     }
 }
